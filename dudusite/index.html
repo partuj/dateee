@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Teklifi</title>
+
+    <!-- Google Fonts: Poppins (Tatlı & Yuvarlak Font) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+
+    <!-- Konfeti Efekti Kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- MÜZİK BUTONU VE SES DOSYASI -->
+    <button class="music-btn" id="musicBtn" onclick="muzikCalKapat()">🎵</button>
+    <audio id="bgMusic" src="sarki.mp3" loop></audio>
+
+    <!-- ARKA PLAN KALP YAĞMURU ALANI -->
+    <div class="hearts-container" id="heartsContainer"></div>
+
+    <!-- YAZI VE EN SON ÇIKACAK FOTOĞRAFLARIN ALANI -->
+    <div class="kart-alani">
+        <img src="foto1.jpeg" id="fotoSol" class="gizli-foto foto-sol" alt="Foto 1">
+        
+        <p class="selamlama" id="yazi">Merhaba Duduş!</p>
+        
+        <img src="foto2.jpeg" id="fotoSag" class="gizli-foto foto-sag" alt="Foto 2">
+    </div>
+
+    <!-- BUTONLARIN YAN YANA DURDUĞU KUTU -->
+    <div class="butonlar-kutusu">
+        <button class="mrb-butonu" id="buton" onclick="sonrakiSoru()">MRB CNM</button>
+        <button class="hayir-butonu" id="hayirBtn">Hayır 🙈</button>
+    </div>
+
+    <script>
+        // Soru ve buton akış adımları
+        const adimlar = [
+            { yazi: "Benimle Yemeğe Çıkar mısın?", buton: "olrr"},
+            { yazi: "Harika o zaman! Nereye gitmek istersin?", buton: "sen seç cnm"},
+            { yazi: "O zaman herşeyi bana bırak cnm", buton: "tamamm"}
+        ];
+
+        let adimIndex = 0;
+
+        // Müzik elemanları
+        const music = document.getElementById("bgMusic");
+        const musicBtn = document.getElementById("musicBtn");
+
+        // SORULARI DEĞİŞTİREN ANA FONKSİYON
+        function sonrakiSoru() {
+            const yaziEl = document.getElementById("yazi");
+            const butonEl = document.getElementById("buton");
+            const hayirBtn = document.getElementById("hayirBtn");
+
+            // İlk tıklamada müzik henüz çalmıyorsa otomatik başlatalım
+            if (music.paused) {
+                muzikCalKapat();
+            }
+
+            // Saydamlık geçişi için class ekliyoruz
+            yaziEl.classList.add("smooth-gecis");
+            butonEl.classList.add("smooth-gecis");
+
+            setTimeout(() => {
+                if (adimIndex < adimlar.length) {
+                    yaziEl.innerText = adimlar[adimIndex].yazi;
+                    butonEl.innerText = adimlar[adimIndex].buton;
+                    adimIndex++;
+                } else {
+                    // SON ADIM: YAZI DEĞİŞİR, BUTONLAR GİDER, FOTOĞRAFLAR ÇIKAR, KONFETİ PATLAR 🎉
+                    yaziEl.innerText = "Hadi Bakalım!";
+                    butonEl.style.display = "none";
+                    hayirBtn.style.display = "none";
+
+                    // Fotoğrafları görünür yapıyoruz
+                    document.getElementById("fotoSol").classList.add("foto-goster");
+                    document.getElementById("fotoSag").classList.add("foto-goster");
+
+                    // Konfeti Yağmuru
+                    confetti({
+                        particleCount: 150,
+                        spread: 80,
+                        origin: { y: 0.6 }
+                    });
+                }
+
+                // Saydamlık sınıfını kaldırıp tekrar görünür yapıyoruz
+                yaziEl.classList.remove("smooth-gecis");
+                butonEl.classList.remove("smooth-gecis");
+            }, 200);
+        }
+
+        // KALP YAĞMURU
+        function kalpOlustur() {
+            const container = document.getElementById("heartsContainer");
+            const heart = document.createElement("div");
+            heart.classList.add("heart");
+            heart.innerHTML = "🤍";
+            
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = Math.random() * 3 + 3 + "s";
+            heart.style.fontSize = Math.random() * 20 + 20 + "px";
+
+            container.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 6000);
+        }
+
+        setInterval(kalpOlustur, 300);
+
+        // MÜZİK BAŞLATMA / DURDURMA
+        function muzikCalKapat() {
+            if (music.paused) {
+                music.play();
+                musicBtn.innerText = "⏸️";
+                musicBtn.classList.add("playing");
+            } else {
+                music.pause();
+                musicBtn.innerText = "🎵";
+                musicBtn.classList.remove("playing");
+            }
+        }
+
+        // KAÇAN HAYIR BUTONU
+        const hayirBtn = document.getElementById("hayirBtn");
+
+        function butonuKacir() {
+            const x = Math.random() * (window.innerWidth - hayirBtn.clientWidth - 50);
+            const y = Math.random() * (window.innerHeight - hayirBtn.clientHeight - 50);
+
+            hayirBtn.style.position = "fixed";
+            hayirBtn.style.left = `${x}px`;
+            hayirBtn.style.top = `${y}px`;
+        }
+
+        hayirBtn.addEventListener("mouseover", butonuKacir);
+        hayirBtn.addEventListener("touchstart", butonuKacir);
+
+        hayirBtn.addEventListener("click", () => {
+            alert("Yakalamayı başardın ama yine de gelecen banane cnm 😉");
+        });
+    </script>
+</body>
+</html>
